@@ -39,8 +39,10 @@ load_dotenv()
 
 # --- Settings --------------------------------------------------------------
 SPACY_MODEL = "en_core_web_sm"
-# Model list: https://console.groq.com/docs/models  (change via .env if needed)
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+# The Groq model used for extraction. Override it any time by adding a line
+# like  GROQ_MODEL=qwen/qwen3.8-27b  to your .env file (no code change needed).
+# See the models your key can use:  https://console.groq.com/docs/models
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
 
 # Every result from this agent must have exactly these keys, in this order.
 REQUIRED_KEYS = ("origin", "destination", "item", "need")
@@ -210,6 +212,10 @@ def process_query(user_request: str) -> dict:
         print(f"[query_agent] Groq reply was not valid JSON: {exc}")
     except Exception as exc:  # no internet, bad key, wrong model name, etc.
         print(f"[query_agent] Groq request failed ({type(exc).__name__}): {exc}")
+        if "model_not_found" in str(exc) or "does not exist" in str(exc):
+            print(f"[query_agent] '{GROQ_MODEL}' is not available on your Groq "
+                  f"key. Set a different one in .env, e.g.  "
+                  f"GROQ_MODEL=qwen/qwen3.8-27b")
 
     # Step 3 - tidy up and guarantee the 4 keys
     return _clean_result(llm_data, user_request, entities)

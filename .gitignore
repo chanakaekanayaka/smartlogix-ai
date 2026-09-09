@@ -216,3 +216,22 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---------------------------------------------------------------------------
+# SmartLogix project-specific
+# ---------------------------------------------------------------------------
+
+# Secrets: never upload API keys. (.env.example IS committed on purpose.)
+.env
+.env.*
+!.env.example
+
+# ChromaDB vector store (generated locally by the loading script)
+chroma/
+chroma_db/
+chromadb/
+.chroma/
+*.chroma
+db/chroma/
+database/chroma/
+

@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-slate-100 text-slate-800 antialiased;
+  }
+}
+
+@layer components {
+  /* Shared card shell used across the dashboard. */
+  .card {
+    @apply rounded-xl border border-slate-200 bg-white shadow-card;
+  }
+
+  .card-header {
+    @apply flex items-center gap-2 border-b border-slate-100 px-5 py-3
+           text-sm font-semibold uppercase tracking-wide text-slate-500;
+  }
+
+  .card-body {
+    @apply px-5 py-4;
+  }
+}
+
+/* Keep the Leaflet map behind sticky headers and the chat widget. */
+.leaflet-container {
+  z-index: 0;
+  font: inherit;
+}
+
+/* Thin scrollbar for the chat widget history. */
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+.chat-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-scroll::-webkit-scrollbar-thumb {
+  background-color: rgb(203 213 225);
+  border-radius: 9999px;
+}

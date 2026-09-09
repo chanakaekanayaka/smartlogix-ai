@@ -235,3 +235,8 @@ chromadb/
 db/chroma/
 database/chroma/
 
+# Security: local user database and token-signing key (never commit these)
+security/users.json
+security/.secret_key
+security/*.tmp
+

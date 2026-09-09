@@ -1,0 +1,15 @@
+# SmartLogix dependencies
+# Install everything with:  pip install -r requirements.txt
+# Versions are left open so pip picks compatible ones on first install.
+# Once it works, run  pip freeze > requirements.txt  to lock exact versions.
+
+langchain              # framework for building LLM-powered apps
+crewai                 # orchestrates multiple cooperating AI agents
+chromadb               # local vector database for the knowledge base
+streamlit              # builds the web user interface
+spacy                  # natural language processing (text parsing/cleaning)
+sentence-transformers  # turns text into embeddings for ChromaDB
+python-dotenv          # loads API keys from the .env file
+groq                   # client for the Groq LLM API
+pandas                 # reads and analyses the dataset
+bcrypt                 # securely hashes user passwords for login

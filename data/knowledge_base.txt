@@ -1,0 +1,139 @@
+SmartLogix Logistics Knowledge Base
+=====================================
+This knowledge base contains SmartLogix policies, procedures and frequently
+asked questions. The Retrieval Agent searches this content to answer customer
+questions about shipping, warehousing, packaging, tracking and pricing.
+
+
+1. SHIPPING POLICIES
+--------------------
+All shipments must be booked at least 12 hours before the requested pickup time.
+Standard deliveries are completed within 2 to 4 days depending on distance.
+Express deliveries are completed within 1 to 2 days. Same-day delivery is
+available only within the same city or district. Deliveries to the Northern and
+Eastern regions such as Jaffna, Kilinochchi, Vavuniya, Batticaloa and Ampara may
+take one extra day because the routes are longer.
+
+A shipment is considered delayed if it is not delivered within one day of the
+expected delivery date. Customers are notified automatically when a shipment is
+delayed. If a delivery fails because no one is available to receive the item, the
+item is returned to the nearest warehouse and a re-delivery is scheduled at no
+extra cost for the first retry.
+
+
+2. TRANSPORT AND VEHICLES
+-------------------------
+SmartLogix selects the vehicle based on the weight and size of the shipment.
+Motorbikes carry items under 5 kg such as documents and small parcels.
+Three-wheelers carry items up to 20 kg. Vans carry items up to 50 kg. Lorries
+carry items up to 120 kg such as furniture. Trucks carry heavy items above 120 kg
+such as large appliances and bulk furniture sets.
+
+The cheapest route is usually the shortest road distance between the warehouse and
+the destination. The fastest route may cost more because it uses express handling
+and priority vehicles. Fragile and heavy items may require a larger or specially
+equipped vehicle even if they are light, to ensure safe transport.
+
+
+3. WAREHOUSING
+--------------
+SmartLogix operates ten warehouses located in Colombo, Gampaha, Kandy, Galle,
+Jaffna, Kurunegala, Anuradhapura, Batticaloa, Matara and Negombo. The Colombo and
+Negombo warehouses operate 24 hours a day and offer cold storage. The Kandy
+warehouse also offers cold storage.
+
+When a customer places an order, the system selects the warehouse that has the
+product in stock and is closest to the destination, so that delivery time and cost
+are reduced. If the nearest warehouse does not have enough available space or does
+not handle the product type, the next most suitable warehouse is chosen. Fragile
+goods can only be stored in warehouses that support fragile handling. Cold storage
+items can only be stored in the Colombo, Kandy and Negombo warehouses.
+
+Each warehouse has a maximum capacity measured in units. When a warehouse is close
+to full, new stock is routed to another warehouse in the same region.
+
+
+4. INVENTORY CONTROL
+--------------------
+Every product has a stock quantity and a reorder level. When the stock quantity
+falls to or below the reorder level, the system flags the product for restocking
+with a low stock alert. If a customer requests a product that is out of stock at
+the nearest warehouse, the system checks other warehouses for availability. If the
+product is completely out of stock everywhere, the customer is informed and offered
+an estimated restock date. Inventory levels are updated every time an order is
+confirmed so that stock information stays accurate.
+
+
+5. PACKAGING GUIDELINES
+-----------------------
+Proper packaging protects goods during transport and reduces damage. The packaging
+type is chosen automatically based on the product category and its cost is added to
+the total delivery cost. Documents use padded envelopes. Electronics use anti-static
+boxes with foam. Fragile items use bubble wrap with double boxing and fragile labels.
+Groceries and cold items use insulated boxes. Furniture uses corner guards and moving
+blankets. Large appliances use wooden crates. Books use corrugated boxes. Clothing
+uses waterproof poly mailers.
+
+Fragile items and cold storage items require the highest protection levels. Items
+that require cold storage are packed with insulated materials and, where needed,
+ice packs to maintain the cold chain during transport.
+
+
+6. INFORMATION FLOW AND TRACKING
+--------------------------------
+Customers can track their shipments at any time. The system shares the current
+location, the assigned warehouse, the vehicle type, the estimated delivery date and
+the current status. The status values are booked, packed, in transit, delivered,
+delayed and failed. When a shipment moves from one stage to the next, the status is
+updated and the customer is notified. This transparent information flow lets
+customers know exactly where their items are and when they will arrive.
+
+
+7. PRICING
+----------
+The total delivery cost is made up of a base fee, a distance charge per kilometer, a
+weight charge per kilogram, a packaging cost based on the item type, and a delivery
+mode multiplier. Express and same-day deliveries cost more than standard and economy
+deliveries. The same pricing rules are applied to all customers and all regions to
+keep pricing fair and transparent. Every quote includes a breakdown so the customer
+can see how the price was calculated.
+
+
+8. RESPONSIBLE USE AND DATA PRIVACY
+-----------------------------------
+SmartLogix protects customer data. Personal details such as names, addresses and
+contact numbers are used only to complete deliveries and are never sold or shared
+with third parties. Customers can request to view, correct or delete their data at
+any time. Every cost estimate includes an explanation of how it was calculated, so
+customers understand and trust the pricing. Estimates are clearly marked as
+approximate when they depend on assumptions or on data that may change.
+
+
+9. FREQUENTLY ASKED QUESTIONS
+-----------------------------
+How do I get a delivery cost estimate? Enter the origin, destination and the item
+you want to send, and the system returns the route, cost, delivery time and an
+explanation.
+
+Which areas do you deliver to? SmartLogix delivers across all provinces of Sri
+Lanka, including the Western, Central, Southern, Northern, Eastern, North Western,
+North Central, Uva and Sabaragamuwa provinces.
+
+How is the delivery cost calculated? It is based on distance, item weight,
+packaging and the delivery mode you choose. The cheapest option uses the shortest
+route and standard handling; the fastest option uses express handling.
+
+What if my item is fragile? Fragile items are packed with bubble wrap and double
+boxing, shipped in a suitable vehicle, and stored only in warehouses that handle
+fragile goods.
+
+What if the item needs to stay cold? Cold storage items are packed with insulated
+materials and ice packs, and are handled through the Colombo, Kandy or Negombo
+warehouses which have cold storage.
+
+What happens if my delivery is delayed? You are notified automatically, and the
+system shows the updated expected delivery date. If a delivery fails, the item
+returns to the nearest warehouse and a free re-delivery is scheduled.
+
+Can I cancel or change an order? Orders can be changed or cancelled before the item
+is packed. Once the item is in transit, changes are not possible.

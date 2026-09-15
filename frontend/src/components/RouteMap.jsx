@@ -50,7 +50,7 @@ function FitToMarkers({ points }) {
  */
 export default function RouteMap({
   coordinates,
-  heightClass = 'h-[360px] sm:h-[440px]',
+  heightClass = 'h-[320px] sm:h-[420px] lg:h-[460px]',
 }) {
   const { origin, destination, warehouse } = coordinates || {}
 
@@ -96,12 +96,12 @@ export default function RouteMap({
   ].filter(([, p]) => p && p.resolved === false && p.city)
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden rounded-b-2xl border-t border-slate-100">
       <MapContainer
         center={points[0] || SRI_LANKA_CENTER}
         zoom={7}
         scrollWheelZoom={false}
-        className={`w-full ${heightClass}`}
+        className={`w-full border-b border-slate-200 ${heightClass}`}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -146,7 +146,7 @@ export default function RouteMap({
         <FitToMarkers points={points} />
       </MapContainer>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 text-xs text-slate-500">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 bg-slate-50/70 px-5 py-3 text-xs text-slate-500">
         <Legend color="#64748b" label="Origin" />
         <Legend color="#4f46e5" label="Warehouse" />
         <Legend color="#059669" label="Destination" />

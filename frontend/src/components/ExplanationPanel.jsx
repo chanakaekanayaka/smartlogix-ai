@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import InfoCard from './InfoCard'
 import StatusBadge from './StatusBadge'
+import { LightbulbIcon } from './icons'
 
 /**
  * Responsible-AI panel: the Retrieval Agent's plain-English explanation of
@@ -14,7 +15,7 @@ export default function ExplanationPanel({ explanation, source, snippets = [], f
   return (
     <InfoCard
       title="Responsible AI explanation"
-      icon="💡"
+      icon={<LightbulbIcon className="h-3.5 w-3.5" />}
       action={
         <StatusBadge
           status={source}
@@ -22,7 +23,7 @@ export default function ExplanationPanel({ explanation, source, snippets = [], f
         />
       }
     >
-      <p className="text-sm leading-relaxed text-slate-700">
+      <p className="rounded-xl border border-slate-100 bg-slate-50/60 p-3.5 text-sm leading-relaxed text-slate-700">
         {explanation || 'No explanation was produced.'}
       </p>
 

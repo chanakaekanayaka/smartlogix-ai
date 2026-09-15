@@ -15,7 +15,7 @@ export default function WidgetComposer({ onSend, disabled }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-center gap-2 border-t border-slate-200 bg-white px-3 py-2.5"
+      className="flex items-center gap-2 border-t border-slate-200/70 bg-white/70 px-3 py-2.5 backdrop-blur-sm"
     >
       <input
         type="text"

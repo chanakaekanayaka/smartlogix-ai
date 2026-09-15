@@ -6,8 +6,12 @@ export default function InfoCard({ title, icon, action, children, className = ''
   return (
     <section className={`card ${className}`}>
       <header className="card-header">
-        {icon && <span className="text-base">{icon}</span>}
-        <span className="flex-1">{title}</span>
+        {icon && (
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-slate-100 to-slate-200/70 text-sm ring-1 ring-slate-900/5">
+            {icon}
+          </span>
+        )}
+        <span className="min-w-0 flex-1">{title}</span>
         {action}
       </header>
       <div className="card-body">{children}</div>

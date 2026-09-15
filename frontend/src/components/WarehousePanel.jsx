@@ -1,17 +1,18 @@
 import { formatKm } from '../lib/format'
 import InfoCard, { DataRow } from './InfoCard'
 import StatusBadge from './StatusBadge'
+import { WarehouseIcon } from './icons'
 
 /** Warehouse Agent results: which warehouse was chosen and why. */
 export default function WarehousePanel({ warehouse }) {
   return (
     <InfoCard
       title="Selected warehouse"
-      icon="🏭"
+      icon={<WarehouseIcon className="h-3.5 w-3.5" />}
       action={<StatusBadge status={warehouse.status} />}
     >
-      <div className="mb-2 flex items-baseline gap-2">
-        <span className="text-lg font-semibold text-slate-900">{warehouse.id || '-'}</span>
+      <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+        <span className="text-lg font-bold text-slate-900">{warehouse.id || '-'}</span>
         <span className="text-sm text-slate-500">{warehouse.location}</span>
       </div>
 
@@ -30,7 +31,7 @@ export default function WarehousePanel({ warehouse }) {
       </dl>
 
       {warehouse.message && (
-        <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+        <p className="mt-3 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600">
           {warehouse.message}
         </p>
       )}

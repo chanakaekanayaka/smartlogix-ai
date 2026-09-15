@@ -32,18 +32,22 @@ export default function App() {
     <div className="min-h-screen">
       <Header />
 
-      <main className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6">
+      <main className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:space-y-5 sm:px-6 sm:py-8">
         <QueryForm onSubmit={runQuery} loading={loading} />
 
         {loading && <LoadingState />}
         {!loading && error && (
           <ErrorState message={error} onRetry={() => lastQuery && runQuery(lastQuery)} />
         )}
-        {!loading && !error && result && <Dashboard data={result} />}
+        {!loading && !error && result && (
+          <div key={lastQuery} className="animate-slide-up">
+            <Dashboard data={result} />
+          </div>
+        )}
         {!loading && !error && !result && <EmptyState />}
       </main>
 
-      <footer className="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-slate-400 sm:px-6">
+      <footer className="mx-auto max-w-7xl px-4 py-8 text-center text-xs text-slate-400 sm:px-6">
         SmartLogix - Agentic AI logistics system - university project (IT3041)
       </footer>
 

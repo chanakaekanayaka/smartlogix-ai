@@ -13,10 +13,18 @@ executes, in order:
     Route Optimizer  -> vehicle, mode, distance, cost, time
     Retrieval Agent  -> grounded natural-language explanation
 
-then attaches map coordinates and returns one tidy, grouped dictionary for
-the API / frontend. Every stage is isolated: if one fails the pipeline keeps
-going with safe defaults and reports ``pipeline_status = "partial"`` rather
-than crashing.
+then returns one tidy, grouped dictionary for the API / frontend. Every
+stage is isolated: if one fails the pipeline keeps going with safe defaults
+and reports ``pipeline_status = "partial"`` rather than crashing.
+
+Agent communication
+--------------------
+The first four stages are direct, in-process Python function calls. The
+Retrieval stage is deliberately different: it runs as its own FastAPI
+service (``agents/retrieval_service.py``) and is called over real HTTP (see
+``_call_retrieval_service`` below) - SmartLogix's defined, API-based
+agent-to-agent communication protocol. If that service is unreachable, the
+failure is isolated by ``_run_stage`` exactly like any other stage error.
 
 Responsible AI enforcement
 --------------------------
@@ -35,9 +43,12 @@ Every response the Coordinator returns carries:
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from typing import Any, Callable
+
+import httpx
 
 # Allow running this file directly ("python agents/coordinator.py").
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -46,12 +57,22 @@ if str(_PROJECT_ROOT) not in sys.path:
 
 from agents.inventory_agent import check_inventory  # noqa: E402
 from agents.query_agent import process_query        # noqa: E402
-from agents.retrieval_agent import explain          # noqa: E402
 from agents.route_agent import optimize_route       # noqa: E402
 from agents.warehouse_agent import select_warehouse  # noqa: E402
-from utils.geocode import get_coordinates            # noqa: E402
 
-__all__ = ["run_pipeline", "FAIRNESS_NOTE", "ESTIMATE_WARNING"]
+__all__ = ["run_pipeline", "FAIRNESS_NOTE", "ESTIMATE_WARNING", "RETRIEVAL_SERVICE_URL"]
+
+# ---------------------------------------------------------------------------
+# Retrieval Agent microservice (see agents/retrieval_service.py)
+# ---------------------------------------------------------------------------
+
+# Base URL of the standalone Retrieval Agent service. backend/main.py imports
+# these same constants for POST /api/chat, so the URL/timeout are only
+# defined once.
+RETRIEVAL_SERVICE_URL: str = os.getenv("SMARTLOGIX_RETRIEVAL_URL", "http://localhost:8001")
+# Retrieval calls an LLM, so allow up to a minute - mirrors the frontend's
+# own 60s axios timeout (frontend/src/api/client.js).
+RETRIEVAL_SERVICE_TIMEOUT: float = 65.0
 
 # Statuses that mean a stage did its job (anything else counts as a problem).
 _HEALTHY_STATUSES: frozenset[str] = frozenset({
@@ -127,16 +148,21 @@ def _run_stage(
         return payload if isinstance(payload, dict) else {}
 
 
-def _coordinates_block(state: dict[str, Any]) -> dict[str, Any]:
-    """Origin / destination / warehouse pins for the frontend map."""
-    return {
-        "origin": get_coordinates(state.get("origin")),
-        "destination": get_coordinates(state.get("destination")),
-        "warehouse": get_coordinates(
-            state.get("warehouse_city")
-            or str(state.get("warehouse_location", "")).split(",")[0]
-        ),
-    }
+def _call_retrieval_service(state: dict[str, Any]) -> dict[str, Any]:
+    """Call the Retrieval Agent's standalone HTTP service (agents/retrieval_service.py).
+
+    Every other stage is a direct function call; this one is a real network
+    hop, demonstrating an API-based agent-to-agent protocol. Deliberately no
+    local try/except here: ``_run_stage`` already isolates any failure
+    (service down, timeout, bad response) exactly like every other stage
+    failure, and the pipeline degrades to "partial" plus a guaranteed
+    fallback explanation.
+    """
+    response = httpx.post(
+        f"{RETRIEVAL_SERVICE_URL}/explain", json=state, timeout=RETRIEVAL_SERVICE_TIMEOUT,
+    )
+    response.raise_for_status()
+    return response.json()
 
 
 # ---------------------------------------------------------------------------
@@ -307,9 +333,6 @@ def _shape_response(
         "is_approximate_estimate": True,
         "estimate_warning": ESTIMATE_WARNING,
         "responsible_ai": _responsible_ai_block(state, explanation, explanation_source),
-
-        # --- map ---
-        "coordinates": _coordinates_block(state),
     }
 
 
@@ -350,11 +373,6 @@ def _degraded_response(
             "decision_factors": {},
             "data_sources": list(_DATA_SOURCES),
         },
-        "coordinates": {
-            "origin": get_coordinates(""),
-            "destination": get_coordinates(""),
-            "warehouse": get_coordinates(""),
-        },
     }
 
 
@@ -368,9 +386,9 @@ def run_pipeline(query: str) -> dict[str, Any]:
     Returns:
         A grouped result dict (see :func:`_shape_response`) with keys
         ``request``, ``inventory``, ``warehouse``, ``route``, ``explanation``,
-        ``responsible_ai``, ``coordinates``, plus ``pipeline_status`` /
-        ``stage_status`` and the Responsible AI flags ``is_approximate_estimate``
-        and ``estimate_warning``.
+        ``responsible_ai``, plus ``pipeline_status`` / ``stage_status`` and
+        the Responsible AI flags ``is_approximate_estimate`` and
+        ``estimate_warning``.
 
     Never raises - a total failure still returns a shaped object with
     ``pipeline_status = "error"``.
@@ -389,7 +407,7 @@ def run_pipeline(query: str) -> dict[str, Any]:
         state = _run_stage("inventory", check_inventory, state, stage_status)
         state = _run_stage("warehouse", select_warehouse, state, stage_status)
         state = _run_stage("route", optimize_route, state, stage_status)
-        state = _run_stage("retrieval", explain, state, stage_status)
+        state = _run_stage("retrieval", _call_retrieval_service, state, stage_status)
         return _shape_response(clean_query, state, stage_status)
 
     except Exception as exc:  # noqa: BLE001 - last-resort safety net
@@ -403,6 +421,10 @@ def run_pipeline(query: str) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
+    # For a fully "ok" pipeline_status, start the Retrieval Agent service
+    # first: uvicorn agents.retrieval_service:app --reload --port 8001
+    # (from the project root). Without it, this still runs to completion
+    # with pipeline_status="partial" and a deterministic fallback explanation.
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     except Exception:

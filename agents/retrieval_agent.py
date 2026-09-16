@@ -25,6 +25,7 @@ keep the pipeline running.
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -69,6 +70,14 @@ def _clean_text(text: str) -> str:
 # takes a moment, so we only do it on first use and then reuse it).
 _collection: Any | None = None
 _collection_error: str | None = None
+_collection_error_at: float = 0.0
+
+# A failed attempt (e.g. a slow first-time embedding-model download that
+# outran the caller's timeout) is only remembered for this long before the
+# next call retries from scratch - so one transient hiccup doesn't require
+# restarting the service to recover. A successful load is still cached
+# forever (see below).
+_RETRY_COOLDOWN_SECONDS: float = 30.0
 
 
 # ---------------------------------------------------------------------------
@@ -76,10 +85,18 @@ _collection_error: str | None = None
 # ---------------------------------------------------------------------------
 
 def _get_collection() -> Any | None:
-    """Open (once) the ChromaDB knowledge collection, or return ``None``."""
-    global _collection, _collection_error
-    if _collection is not None or _collection_error is not None:
+    """Open the ChromaDB knowledge collection, or return ``None``.
+
+    Cached forever once it succeeds. A failure is cached only for
+    ``_RETRY_COOLDOWN_SECONDS`` so a transient problem retries on its own.
+    """
+    global _collection, _collection_error, _collection_error_at
+    if _collection is not None:
         return _collection
+    if _collection_error is not None:
+        if time.monotonic() - _collection_error_at < _RETRY_COOLDOWN_SECONDS:
+            return None
+        _collection_error = None  # cooldown elapsed - retry below
 
     try:
         import chromadb
@@ -90,6 +107,7 @@ def _get_collection() -> Any | None:
             _collection_error = (
                 f"'{CHROMA_DIR.name}/' not found - run: python database/load_data.py"
             )
+            _collection_error_at = time.monotonic()
             return None
 
         client = chromadb.PersistentClient(
@@ -102,8 +120,9 @@ def _get_collection() -> Any | None:
         _collection = client.get_collection(
             name=KNOWLEDGE_COLLECTION, embedding_function=embed_fn
         )
-    except Exception as exc:  # noqa: BLE001 - any failure -> no retrieval
+    except Exception as exc:  # noqa: BLE001 - any failure -> no retrieval (retried later)
         _collection_error = f"{type(exc).__name__}: {exc}"
+        _collection_error_at = time.monotonic()
         _collection = None
     return _collection
 

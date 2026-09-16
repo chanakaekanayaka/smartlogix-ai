@@ -54,7 +54,11 @@ export default function SummaryGrid({ data }) {
         icon={<MapPinIcon className="h-5 w-5" />}
         tone="brand"
         value={`${request.origin || '?'} → ${request.destination || '?'}`}
-        sub={route.distance_km ? `${Math.round(route.distance_km)} km by road` : 'distance unknown'}
+        sub={
+          route.distance_km !== null && route.distance_km !== undefined
+            ? `${Math.round(route.distance_km)} km by road`
+            : 'distance unknown'
+        }
       />
       <Stat
         label="Item"

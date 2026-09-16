@@ -19,7 +19,7 @@ logistics knowledge base, and giving recommendations. It combines:
 | ------------ | --------------------------------------------------------- |
 | `agents/`    | The AI agents + the Coordinator that chains them          |
 | `backend/`   | FastAPI server that exposes the pipeline to the frontend  |
-| `frontend/`  | React + Vite + Tailwind dashboard (map, cards, forms)     |
+| `frontend/`  | React + Vite + Tailwind dashboard (cards, forms)          |
 | `data/`      | The dataset and knowledge-base documents                  |
 | `database/`  | Script that loads the knowledge base into ChromaDB        |
 | `ui/`        | The Streamlit web interface                               |
@@ -31,9 +31,18 @@ logistics knowledge base, and giving recommendations. It combines:
 ```
 Query Agent  ->  Inventory Agent  ->  Warehouse Agent  ->  Route Optimizer  ->  Retrieval Agent
   parse text     check stock          pick warehouse       vehicle/cost/time    explain (RAG)
+   (in-process function calls)                                                 (HTTP microservice)
 ```
 
-`agents/coordinator.py` runs all five and returns one combined result.
+`agents/coordinator.py` runs all five and returns one combined result. The
+first four agents are direct, in-process Python function calls. The
+**Retrieval Agent runs as its own FastAPI microservice**
+(`agents/retrieval_service.py`, port 8001) and is reached over **real
+HTTP** by both the Coordinator and the `/api/chat` endpoint - this is
+SmartLogix's defined, API-based agent-to-agent communication protocol. If
+that service isn't running, the pipeline still returns a complete result
+(`pipeline_status: "partial"`) with a guaranteed fallback explanation - it
+degrades gracefully rather than breaking.
 
 ## Setup
 
@@ -53,11 +62,15 @@ copy .env.example .env       # Windows  (cp on macOS/Linux)
 # 4. Load the dataset + knowledge base into ChromaDB
 python database/load_data.py
 
-# 5. Run the API backend (http://localhost:8000, docs at /docs)
+# 5. Run the Retrieval Agent microservice (http://localhost:8001, docs at /docs)
+#    Run this from the PROJECT ROOT, not from inside agents/.
+uvicorn agents.retrieval_service:app --reload --port 8001
+
+# 6. In a second terminal, run the API backend (http://localhost:8000, docs at /docs)
 cd backend
 uvicorn main:app --reload
 
-# 6. In a second terminal, run the React frontend (http://localhost:5173)
+# 7. In a third terminal, run the React frontend (http://localhost:5173)
 cd frontend
 npm install
 npm run dev
@@ -66,13 +79,16 @@ npm run dev
 streamlit run ui/app.py
 ```
 
+Start order doesn't matter for steps 5-7 - the backend and frontend both
+tolerate the Retrieval Agent service being down (or started later), just
+with a "partial" result instead of a fully-grounded one until it's up.
+
 ### API
 
 `POST /api/delivery` with `{"query": "Send a fridge from Colombo to Kandy cheaply"}`
 returns the parsed request, stock status, selected warehouse, vehicle, cost
-breakdown, estimated time, a plain-English explanation, and map coordinates.
-The React dashboard in `frontend/` renders all of this, including an
-interactive Leaflet map of the warehouse → destination route.
+breakdown, estimated time, and a plain-English explanation. The React
+dashboard in `frontend/` renders all of this.
 
 ## Security
 
@@ -89,6 +105,12 @@ interactive Leaflet map of the warehouse → destination route.
   `python -m security.manage passwd admin "A-Better-Password-1"`
 - Set `SMARTLOGIX_SECRET_KEY` in `.env` for production (a dev key is
   auto-generated otherwise).
+
+## Commercialization
+
+SmartLogix's target market, pricing model and deployment/go-to-market plan
+are documented separately in
+[`docs/COMMERCIALIZATION.md`](docs/COMMERCIALIZATION.md).
 
 ## Notes
 

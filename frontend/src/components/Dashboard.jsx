@@ -1,10 +1,8 @@
-import InfoCard from './InfoCard'
 import ExplanationPanel from './ExplanationPanel'
-import { AlertTriangleIcon, MapIcon } from './icons'
+import { AlertTriangleIcon } from './icons'
 import InventoryPanel from './InventoryPanel'
 import PipelineStatus from './PipelineStatus'
 import PricingPanel from './PricingPanel'
-import RouteMap from './RouteMap'
 import RoutePanel from './RoutePanel'
 import SummaryGrid from './SummaryGrid'
 import WarehousePanel from './WarehousePanel'
@@ -46,25 +44,10 @@ export default function Dashboard({ data }) {
 
       <SummaryGrid data={data} />
 
-      {/* Details + map */}
-      <div className="grid gap-4 md:grid-cols-5">
-        <div className="space-y-4 md:col-span-2">
-          <InventoryPanel inventory={data.inventory} />
-          <WarehousePanel warehouse={data.warehouse} />
-        </div>
-
-        <div className="space-y-4 md:col-span-3">
-          <InfoCard
-            title="Shipment map"
-            icon={<MapIcon className="h-3.5 w-3.5" />}
-            className="overflow-hidden"
-          >
-            <div className="-mx-5 -mb-4">
-              <RouteMap coordinates={data.coordinates} />
-            </div>
-          </InfoCard>
-          <RoutePanel route={data.route} />
-        </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        <InventoryPanel inventory={data.inventory} />
+        <WarehousePanel warehouse={data.warehouse} />
+        <RoutePanel route={data.route} />
       </div>
 
       <PricingPanel route={data.route} />

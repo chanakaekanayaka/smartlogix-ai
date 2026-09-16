@@ -4,10 +4,12 @@ import { submitDeliveryRequest } from './api/client'
 import Dashboard from './components/Dashboard'
 import { EmptyState, ErrorState, LoadingState } from './components/FeedbackStates'
 import Header from './components/Header'
+import PricingPlans from './components/PricingPlans'
 import QueryForm from './components/QueryForm'
 import ChatWidget from './components/widget/ChatWidget'
 
 export default function App() {
+  const [view, setView] = useState('app') // 'app' | 'pricing'
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -30,21 +32,27 @@ export default function App() {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      <Header view={view} onNavigate={setView} />
 
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:space-y-5 sm:px-6 sm:py-8">
-        <QueryForm onSubmit={runQuery} loading={loading} />
+        {view === 'pricing' ? (
+          <PricingPlans />
+        ) : (
+          <>
+            <QueryForm onSubmit={runQuery} loading={loading} />
 
-        {loading && <LoadingState />}
-        {!loading && error && (
-          <ErrorState message={error} onRetry={() => lastQuery && runQuery(lastQuery)} />
+            {loading && <LoadingState />}
+            {!loading && error && (
+              <ErrorState message={error} onRetry={() => lastQuery && runQuery(lastQuery)} />
+            )}
+            {!loading && !error && result && (
+              <div key={lastQuery} className="animate-slide-up">
+                <Dashboard data={result} />
+              </div>
+            )}
+            {!loading && !error && !result && <EmptyState />}
+          </>
         )}
-        {!loading && !error && result && (
-          <div key={lastQuery} className="animate-slide-up">
-            <Dashboard data={result} />
-          </div>
-        )}
-        {!loading && !error && !result && <EmptyState />}
       </main>
 
       <footer className="mx-auto max-w-7xl px-4 py-8 text-center text-xs text-slate-400 sm:px-6">

@@ -15,4 +15,4 @@ pandas                 # reads and analyses the dataset
 bcrypt                 # securely hashes user passwords for login
 fastapi                # REST API that serves the agent pipeline to the frontend
 uvicorn                # ASGI server that runs the FastAPI app
-httpx                  # HTTP client used by FastAPI's TestClient (testing)
+httpx                  # HTTP client - calls the Retrieval Agent service + FastAPI TestClient

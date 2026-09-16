@@ -9,8 +9,7 @@ React frontend.
 runs the Coordinator (Query -> Inventory -> Warehouse -> Route -> Retrieval)
 and returns one comprehensive JSON object: the parsed request, stock status,
 the selected warehouse, the vehicle, the cost breakdown, the estimated time,
-a plain-English explanation, and map coordinates for origin / destination /
-warehouse.
+and a plain-English explanation.
 
 Run it:
     cd backend
@@ -29,12 +28,16 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+import httpx  # noqa: E402
 from fastapi import Depends, FastAPI, HTTPException  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from pydantic import BaseModel, Field  # noqa: E402
 
-from agents.coordinator import run_pipeline  # noqa: E402
-from agents.retrieval_agent import answer_policy_question  # noqa: E402
+from agents.coordinator import (  # noqa: E402
+    RETRIEVAL_SERVICE_TIMEOUT,
+    RETRIEVAL_SERVICE_URL,
+    run_pipeline,
+)
 from security.auth import AuthError, User, login as auth_login  # noqa: E402
 from security.config import REQUIRE_AUTH  # noqa: E402
 from security.fastapi_deps import enforce_auth, get_current_user  # noqa: E402
@@ -216,10 +219,13 @@ def policy_chat(
     """Answer a company-policy / packaging / FAQ question from the knowledge base.
 
     This is the Retrieval Agent only - it does **not** run the logistics
-    pipeline. Returns ``{ answer, sources, answer_source, status }``.
+    pipeline. Calls the standalone Retrieval Agent service
+    (``agents/retrieval_service.py``) over HTTP - see ``agents/coordinator.py``
+    for why that agent runs separately. Returns
+    ``{ answer, sources, answer_source, status }``.
     Raises:
         * 400 - the message is empty, too short, or flagged as malicious.
-        * 502 - the retrieval agent raised something unexpected.
+        * 502 - the Retrieval Agent service is unreachable or errored.
     """
     sanitised = sanitize_query(request.message)
     if sanitised.blocked or not sanitised.is_valid:
@@ -229,11 +235,17 @@ def policy_chat(
         )
 
     try:
-        return answer_policy_question(sanitised.cleaned)
-    except Exception as exc:  # answer_policy_question shouldn't raise
+        response = httpx.post(
+            f"{RETRIEVAL_SERVICE_URL}/answer",
+            json={"question": sanitised.cleaned},
+            timeout=RETRIEVAL_SERVICE_TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()
+    except Exception as exc:  # service down, timeout, bad response, etc.
         raise HTTPException(
             status_code=502,
-            detail=f"Knowledge-base error: {type(exc).__name__}: {exc}",
+            detail=f"Retrieval Agent service error: {type(exc).__name__}: {exc}",
         ) from exc
 
 

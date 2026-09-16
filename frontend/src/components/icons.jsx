@@ -136,15 +136,6 @@ export function LightbulbIcon(props) {
   )
 }
 
-export function MapIcon(props) {
-  return (
-    <IconBase {...props}>
-      <path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4Z" />
-      <path d="M9 4v14M15 6v14" />
-    </IconBase>
-  )
-}
-
 export function AlertTriangleIcon(props) {
   return (
     <IconBase {...props}>
@@ -169,6 +160,24 @@ export function ChevronRightIcon(props) {
   return (
     <IconBase {...props}>
       <path d="M9 6l6 6-6 6" />
+    </IconBase>
+  )
+}
+
+export function CheckIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M20 6 9 17l-5-5" />
+    </IconBase>
+  )
+}
+
+export function BuildingIcon(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="4" y="3" width="12" height="18" rx="1" />
+      <path d="M8 7h4M8 11h4M8 15h4" />
+      <path d="M16 10h4v11h-4" />
     </IconBase>
   )
 }
